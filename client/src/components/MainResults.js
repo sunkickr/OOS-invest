@@ -6,6 +6,9 @@ import { MainContext } from "../context/MainContext";
 import Chart from "./expensechart";
 
 export default function InfoForm() {
+
+    // Define constants and local states to be used in the Expense form and Results
+
     const { state,changeExpense, calculate } = useContext(MainContext);
 
     const content1 = 'Yearly return on the downpayment from cashflow only. (yearly cashflow)/(down payment)'
@@ -15,6 +18,8 @@ export default function InfoForm() {
     const [form, setForm] = useState(state.form);
 
     const [form1, setForm1] = useState(state.form);
+
+    // Rerender when form or form1 local state change
 
     useEffect(()=>{
         console.log(form)
@@ -26,11 +31,15 @@ export default function InfoForm() {
         calculate(form1)
     }, [form1])
 
+    // Varibles and constants 
+
     var expenses = Object.entries(state.expenses);
 
     const COLORS = ['blue', 'green', 'violet', 'orange', 'teal', 'red', 'purple'];
 
     var show = Object.values(state.show);
+
+    // Click function 
 
     const click = (expense) => {
         setForm1({...state.form,
@@ -38,6 +47,8 @@ export default function InfoForm() {
                 expense: expense,
             }});
     }
+
+    // Rows of expenses 
 
     const rows = expenses.map ((expense, index)  => (
         <Table.Row>
@@ -66,10 +77,13 @@ export default function InfoForm() {
         </Table.Row> 
     ))
 
+    // data for pie chart 
 
     const data = expenses.map(expense => ({
         name: expense[0], value: parseInt(expense[1])
     }))
+
+    //Rendered content
 
     return (
         <div className="main">

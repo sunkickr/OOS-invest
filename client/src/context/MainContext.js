@@ -1,7 +1,7 @@
 import React, { useReducer, createContext } from 'react';
 import MainReducer from './MainReducer';
 import axios from 'axios';
-
+// Intial state of application
 const initialState = { 
     address: "",
       form:{
@@ -45,21 +45,26 @@ const initialState = {
 
 // Create context
 export const MainContext = createContext(initialState);
+
 // Provider component
 export const MainContextProvider = props => {
     const [state, dispatch] = useReducer(MainReducer, initialState);
 
     // Actions
+    // Calculate the expenses and Results 
     function calculate(form1) {
         console.log(form1)
-        var pp = 0;
-        var ri = 0;
-        var la = 0;
-        var ir = 0;
-        var lt = 0;
-        var mo = 0;
-        var pr = 0;
-        var dp = form1.downpayment
+        // varibles start at 0 becasue certain options default the varibles to 0
+        var pp = 0; // purchaseprice
+        var ri = 0; // rental income 
+        var la = 0; // full mortgage amount pp - dp
+        var ir = 0; // interest rate 
+        var lt = 0; // loan term 
+        var mo = 0; // mortage
+        var pr = 0; // downpayment percentage 
+        var dp = form1.downpayment // downpayment
+
+        // conditionals on purchase price and reantal income 
         if (form1.purchaseprice){
             pp = form1.purchaseprice;
         }else{
@@ -69,6 +74,7 @@ export const MainContextProvider = props => {
             ri = form1.rentalincome;
         }
 
+        // Condtionals on loan information
         if (form1.toggle === "percentage") {
             dp = pp*form1.percentage/100
             la = pp - dp
@@ -90,10 +96,14 @@ export const MainContextProvider = props => {
             pr = dp/pp*100
         }
 
+        // Calcualte mortage 
+
         ir = form1.interestrate/100/12;
         lt = form1.loanterm*12;
         mo = la*((ir*(1+ir)**lt)/(((1+ir)**lt)-1));
         console.log(form1.interestrate)
+
+        // Condtionals for loan information
 
         if (isNaN(form1.interestrate) || isNaN(form1.loanterm)){
             mo = 0
@@ -111,6 +121,8 @@ export const MainContextProvider = props => {
             la = 0
         } ;
 
+        //Calcualte expenses
+
         var expenses = {
                 mortage: mo,
                 taxes: ri*.15,
@@ -122,6 +134,8 @@ export const MainContextProvider = props => {
         };
 
         console.log(expenses)
+
+        // Remove selected expenses from expense state and show state 
 
         var selected = state.selected
         
@@ -146,10 +160,9 @@ export const MainContextProvider = props => {
                 expenses[expense] = values[index]
             }
         });
-
-        
-
         console.log(expenses)
+
+        // Calculate Results
 
         const et = Object
             .values(expenses)
@@ -173,6 +186,8 @@ export const MainContextProvider = props => {
             hvroi: ((ri-et)*12)/(pp)*100
         };
 
+        //new form
+
         const newForm = {
             purchaseprice: pp,
             rentalincome: ri,
@@ -188,6 +203,7 @@ export const MainContextProvider = props => {
         };
         console.log(newForm)
         
+        // dispatch to the the payload to the reducer 
 
         dispatch({
             type: 'CALCULATE',
@@ -200,15 +216,20 @@ export const MainContextProvider = props => {
         });
     }
 
+    // Change expense to custom expense
+
     function changeExpense(form) {
-        
-        var pp = 0;
-        var ri = 0;
-        var la = 0;
-        var ir = 0;
-        var lt = 0;
-        var mo = 0;
-        var dp = form.downpayment
+    
+        // varibles start at 0 becasue certain options default the varibles to 0
+        var pp = 0; // purchaseprice
+        var ri = 0; // rental income 
+        var la = 0; // full mortgage amount pp - dp
+        var ir = 0; // interest rate 
+        var lt = 0; // loan term 
+        var mo = 0; // mortage
+        var dp = form1.downpayment // downpayment
+
+        // Form condtionals 
         if (form.purchaseprice){
             pp = form.purchaseprice;
         }else{
@@ -222,10 +243,16 @@ export const MainContextProvider = props => {
         }else {
             la = pp;
         }
+
+        // Calculate mortage 
+
         ir = form.interestrate/100/12;
         lt = form.loanterm*12;
         mo = la*((ir*(1+ir)**lt)/(((1+ir)**lt)-1));
         console.log(form.interestrate)
+
+        // Loan condtionals 
+
         if (isNaN(form.interestrate) || isNaN(form.loanterm)){
             mo = 0
             dp = 0
@@ -235,6 +262,8 @@ export const MainContextProvider = props => {
             mo = 0
             dp = 0
         } ;
+
+        // Add custom expense into expenses list 
 
        var newExpenses = state.expenses;
        const keys = Object.keys(newExpenses);
@@ -247,20 +276,26 @@ export const MainContextProvider = props => {
            newExpenses[expense] = values[index]
        });
 
-    var show = state.show
-    var selected = state.selected
+       // updated list of expenses that show delete button 
 
-    selected[form.input.expense] = form.input.amount
+        var show = state.show
+        var selected = state.selected
+
+        selected[form.input.expense] = form.input.amount
+        
+        show[form.input.expense] = 'inline'
     
-    show[form.input.expense] = 'inline'
-  
-    console.log(selected)
+        console.log(selected)
 
-    const et = Object
-        .values(newExpenses)
-        .reduce((acc, item) => (acc += item), 0);
+        // Calculate results
+
+        const et = Object
+            .values(newExpenses)
+            .reduce((acc, item) => (acc += item), 0);
 
        var dproi = ((ri-et)*12)/(pp-la)*100
+
+            // Results condtionals
 
         if (isNaN(form.interestrate) || isNaN(form.loanterm)){
             dproi = ((ri-et)*12)/(pp)*100
@@ -280,6 +315,8 @@ export const MainContextProvider = props => {
 
         console.log(newExpenses)
 
+        //Dispatch payload to Reducer
+
         dispatch({
             type: 'CHANGEEXPENSE',
             payload: {
@@ -293,6 +330,8 @@ export const MainContextProvider = props => {
 
     }
 
+    // Change Address 
+
     function changeAddress(address) {
         dispatch({
             type: 'CHANGEADDRESS',
@@ -302,15 +341,19 @@ export const MainContextProvider = props => {
         });
     }
 
+    // load 
+
     function load() {
         return
     }
+
+    // save 
 
     function save() {
         return
     }
 
-
+    // MainContext provider 
 
     return (
         <MainContext.Provider value={{

@@ -4,6 +4,8 @@ import Slider from '@material-ui/core/Slider';
 import { makeStyles } from "@material-ui/core/styles";
 import { MainContext } from "../context/MainContext";
 
+// styling for sliders 
+
 const useStyles = makeStyles(theme => ({
     root: {
       width: 300
@@ -39,15 +41,20 @@ const useStyles = makeStyles(theme => ({
     return `$${value}K`;
   }
   
+// Main form component 
 
 function MainForm() {
     const { calculate, state } = useContext(MainContext);
 
     const [form, setForm] = useState(state.form);
 
+    // Rerender whenever form changes 
+
     useEffect(()=>{
         calculate(form)
     }, [form])
+
+    // handlesubmit
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -55,6 +62,8 @@ function MainForm() {
         if ( !form ) return;
         calculate(form)
     }
+
+    // loan term options 
 
     const options= [
         { key: '10', text: '10 years', value: 10},
@@ -64,6 +73,8 @@ function MainForm() {
     ]
 
     const classes = useStyles();
+
+    //Rendered form
 
     return(
         <div className="main">
