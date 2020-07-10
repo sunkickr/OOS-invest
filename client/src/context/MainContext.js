@@ -227,7 +227,7 @@ export const MainContextProvider = props => {
         var ir = 0; // interest rate 
         var lt = 0; // loan term 
         var mo = 0; // mortage
-        var dp = form1.downpayment // downpayment
+        var dp = form.downpayment // downpayment
 
         // Form condtionals 
         if (form.purchaseprice){
